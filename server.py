@@ -1,6 +1,7 @@
 import socket
 import threading
 import struct
+import random
 def handle_user_connection(connection: socket.socket, address: tuple):
      while True:
             msg = connection.recv(2048)
@@ -54,7 +55,26 @@ def handle_user_connection(connection: socket.socket, address: tuple):
                         packet = struct.pack('b 15s 2000s', 12 ,bytes("Server", 'utf-8'),bytes("The command was wrong", 'utf-8'))
                         connection.send(packet)
                 elif typ == 3:
-                    pass
+                        if strcode in connections.keys():
+                            packet = struct.pack('b 15s 2000s', 3 ,bytes("Server", 'utf-8'),bytes("Failed", 'utf-8'))
+                            connection.send(packet)
+                        else:
+                            while True:
+                                ip_address="127"
+                                ran1=random.randrange(0,255)
+                                ran2=random.randrange(0,255)
+                                ran3=random.randrange(2,254)
+                                ip_address+="."+str(ran1)+"."+str(ran2)+"."+str(ran3)
+                                if(ip_address in ip_add):
+                                    continue
+                                else:
+                                    connections[strcode]=ip_address
+                                    packet = struct.pack('b 15s 2000s', 3 ,bytes("Server", 'utf-8'),bytes(ip_address, 'utf-8'))
+                                    connection.send(packet)
+                                    print("{} : The client is connected to the server".format(strcode))
+                                    print("{}'s IP is {}".format(strcode,ip_address))
+                                    print(" ")
+                                    break
                 elif typ == 4:
                      pass
                 else:
