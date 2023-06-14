@@ -1,9 +1,11 @@
 import socket
-import threading
 import struct
+import threading
 import random
 def handle_user_connection(connection: socket.socket, address: tuple):
-     while True:
+    
+    try:
+        while True:
             msg = connection.recv(2048)
             if msg :
                 typ,strcode,message_recv = struct.unpack('b 15s 2000s',msg)
@@ -76,23 +78,45 @@ def handle_user_connection(connection: socket.socket, address: tuple):
                                     print(" ")
                                     break
                 elif typ == 4:
-                     pass
+                    print("{} : Sent a connection request to the client with username {} to the server".format(strcode , message_recv))
+                    print(" ")
+                    if(message_recv in active_connections.keys()):
+                        packet = struct.pack('b 15s 2000s', 11 ,bytes("Server", 'utf-8'),bytes(connections[message_recv], 'utf-8'))
+                        connection.send(packet)
+                    else:
+                        packet = struct.pack('b 15s 2000s', 12 ,bytes("Server", 'utf-8'),bytes("The username entered is not active", 'utf-8'))
+                        connection.send(packet)
                 else:
-                     pass
-            
+                    print("{} : This request is unknown to the server".format(strcode))
+                    print(" ")
+                    packet = struct.pack('b 15s 2000s', 12 ,bytes("Server", 'utf-8'),bytes("Failed _ The received message was incorrect", 'utf-8'))
+                    connection.send(packet)
             else:
-                    connection.close()
-  
+                connection.close()
+    except:
+        print("{} : The connection with the client was lost".format(strcode))
+        print(" ")
+        connection.close()
+        if strcode in connections.keys():
+            del connections[strcode]
+        if strcode in active_connections.keys():
+            del active_connections[strcode]
+
 listening_port = 12000
 connections = {}
 active_connections = {}
 ip_add=[]
+try:
+    socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_server.bind(('127.0.0.1', listening_port))
+    socket_server.listen()
 
-socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket_server.bind(('127.0.0.1', listening_port))
-socket_server.listen()
+    while True:
 
-while True:
-    socket_connection, address_c = socket_server.accept()
-    
-    threading.Thread(target=handle_user_connection, args=[socket_connection, address_c]).start()
+        socket_connection, address_c = socket_server.accept()
+
+        threading.Thread(target=handle_user_connection, args=[socket_connection, address_c]).start()
+except:
+    print("Server failed")
+    print(" ")
+    exit()
