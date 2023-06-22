@@ -52,7 +52,7 @@ We have a number of requests between the server and the client (which we put in 
 *   11: Request to connect another client to the server and receive the answer
 *   12: Sending and receiving messages
 
-![1](https://github.com/falakian/socket-programming/assets/107622368/ea68e818-cdb4-4018-8cf7-624c3e718a9d)
+![1](https://github.com/falakian/socket-programming/assets/107622368/ac3817f8-4353-4e6a-b7ca-a8dad99a4943)
 
 
 *  Message package:
